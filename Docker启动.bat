@@ -31,7 +31,7 @@ if %errorlevel% neq 0 (
 echo.
 echo [2/2] 启动成功！
 echo --------------------------------------------------------
-echo 请在浏览器访问: http://localhost:5000
+echo 请在浏览器访问: http://localhost
 echo --------------------------------------------------------
 echo 数据将保存在当前目录下的 docker_data 文件夹中。
 echo.
