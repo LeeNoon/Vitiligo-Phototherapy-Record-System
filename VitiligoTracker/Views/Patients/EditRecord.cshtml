@@ -1,0 +1,80 @@
+@model VitiligoTracker.Models.TreatmentRecord
+
+@{
+    ViewData["Title"] = "编辑治疗记录";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-lg mt-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex p-3 mb-3">
+                    <i class="bi bi-pencil-square fs-3"></i>
+                </div>
+                <h2 class="fw-bold text-dark">编辑治疗记录</h2>
+                <p class="text-muted">修改本次治疗的详细信息</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="EditRecord">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="PatientId" />
+
+                    <div class="mb-3">
+                        <label asp-for="Date" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar3"></i></span>
+                            <input asp-for="Date" class="form-control border-start-0 ps-0" />
+                        </div>
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BodyPart" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-body-text"></i></span>
+                            <input asp-for="BodyPart" class="form-control border-start-0 ps-0" placeholder="例如: 面部" />
+                        </div>
+                        <span asp-validation-for="BodyPart" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label asp-for="IrradiationDose" class="form-label fw-bold text-muted small text-uppercase"></label>
+                            <div class="input-group">
+                                <input asp-for="IrradiationDose" class="form-control" placeholder="0.00" />
+                                <span class="input-group-text bg-white small">mJ</span>
+                            </div>
+                            <span asp-validation-for="IrradiationDose" class="text-danger small"></span>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="DurationSeconds" class="form-label fw-bold text-muted small text-uppercase"></label>
+                            <div class="input-group">
+                                <input asp-for="DurationSeconds" class="form-control" placeholder="0" />
+                                <span class="input-group-text bg-white small">秒</span>
+                            </div>
+                            <span asp-validation-for="DurationSeconds" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Reaction" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <textarea asp-for="Reaction" class="form-control" rows="3" placeholder="记录皮肤反应..."></textarea>
+                        <span asp-validation-for="Reaction" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning text-white py-2 fw-bold shadow-sm">
+                            <i class="bi bi-check-lg me-2"></i>保存修改
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.PatientId" class="btn btn-light text-muted">取消返回</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

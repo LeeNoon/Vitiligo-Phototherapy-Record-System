@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  vitiligotracker:
+    image: vitiligotracker
+    build:
+      context: ./VitiligoTracker
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/vitiligo.db
+    volumes:
+      - ./docker_data:/app/data
+    restart: always

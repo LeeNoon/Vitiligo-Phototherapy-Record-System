@@ -1,0 +1,59 @@
+@model VitiligoTracker.Models.Patient
+
+@{
+    ViewData["Title"] = "新增患者";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-lg mt-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-3">
+                    <i class="bi bi-person-plus-fill fs-3"></i>
+                </div>
+                <h2 class="fw-bold text-dark">新增患者档案</h2>
+                <p class="text-muted">请填写患者的基本治疗信息</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                            <input asp-for="Name" class="form-control border-start-0 ps-0" placeholder="请输入姓名" />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
+                            <input asp-for="StartDate" class="form-control border-start-0 ps-0" />
+                        </div>
+                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Notes" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <textarea asp-for="Notes" class="form-control" rows="3" placeholder="填写病情描述或备注信息..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <i class="bi bi-check-lg me-2"></i>创建档案
+                        </button>
+                        <a asp-action="Index" class="btn btn-light text-muted">取消返回</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

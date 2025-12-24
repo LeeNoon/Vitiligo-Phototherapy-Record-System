@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.VitiligoTracker.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.VitiligoTracker.props",
+      "PackagePath": "build\\VitiligoTracker.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.VitiligoTracker.props",
+      "PackagePath": "buildMultiTargeting\\VitiligoTracker.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.VitiligoTracker.props",
+      "PackagePath": "buildTransitive\\VitiligoTracker.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,76 @@
+@model IEnumerable<VitiligoTracker.Models.Patient>
+
+@{
+    ViewData["Title"] = "患者列表";
+}
+
+<div class="d-flex justify-content-between align-items-center page-header">
+    <div>
+        <h1 class="mb-0 fw-bold text-dark">患者管理</h1>
+        <p class="text-muted mb-0">管理所有患者的光疗记录档案</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i>新增患者
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3">@Html.DisplayNameFor(model => model.Name)</th>
+                        <th class="py-3">@Html.DisplayNameFor(model => model.StartDate)</th>
+                        <th class="py-3">@Html.DisplayNameFor(model => model.Notes)</th>
+                        <th class="text-end pe-4 py-3">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle p-2 me-3 text-primary">
+                                    <i class="bi bi-person-fill fs-5"></i>
+                                </div>
+                                <div>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="fw-bold text-decoration-none text-dark stretched-link">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                @item.StartDate.ToString("yyyy-MM-dd")
+                            </span>
+                        </td>
+                        <td class="text-muted">
+                            @if(!string.IsNullOrEmpty(item.Notes))
+                            {
+                                <i class="bi bi-sticky me-1"></i> @Html.DisplayFor(modelItem => item.Notes)
+                            }
+                            else
+                            {
+                                <span class="text-black-50">-</span>
+                            }
+                        </td>
+                        <td class="text-end pe-4" style="position: relative; z-index: 2;">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light text-primary fw-bold shadow-sm px-3" style="border-radius: 20px;">
+                                    <i class="bi bi-journal-medical me-1"></i>查看记录
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light text-danger shadow-sm" title="删除" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

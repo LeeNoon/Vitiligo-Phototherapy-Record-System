@@ -1,0 +1,33 @@
+@model VitiligoTracker.Models.Patient
+
+@{
+    ViewData["Title"] = "删除患者";
+}
+
+<h1>删除患者</h1>
+
+<h3>确定要删除该患者及其所有记录吗?</h3>
+<div>
+    <h4>@Model.Name</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="删除" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">取消</a>
+    </form>
+</div>
