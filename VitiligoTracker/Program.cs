@@ -20,6 +20,21 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         // Use EnsureCreated() instead of Migrate() to create database without needing migration files
         context.Database.EnsureCreated();
+
+        // 检查表是否存在，如果不存在则重建数据库
+        try
+        {
+            // 尝试访问数据库以验证表是否存在
+            var _ = context.Patients.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            // 如果访问失败（通常是因为表不存在），则重建数据库
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Database tables missing. Recreating database...");
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        }
     }
     catch (Exception ex)
     {
