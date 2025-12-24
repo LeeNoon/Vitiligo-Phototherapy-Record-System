@@ -18,12 +18,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
+        // Use EnsureCreated() instead of Migrate() to create database without needing migration files
+        context.Database.EnsureCreated();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "An error occurred while initializing the database.");
     }
 }
 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Qpai+1at34A=",
+  "dgSpecHash": "AqQxYaXJ9sE=",
   "success": true,
-  "projectFilePath": "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
+  "projectFilePath": "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\22874\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\22874\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
