@@ -62,8 +62,12 @@ namespace VitiligoTracker.Controllers
                 }
             }
 
-            // Sort records by date descending
-            patient.TreatmentRecords = patient.TreatmentRecords.OrderByDescending(r => r.Date).ToList();
+            // Sort records by date ascending
+            patient.TreatmentRecords = patient.TreatmentRecords.OrderBy(r => r.Date).ToList();
+
+            // 查询部位字典
+            var bodyParts = await _context.BodyPartDicts.OrderBy(b => b.Id).ToListAsync();
+            ViewBag.BodyPartDict = bodyParts;
 
             return View(patient);
         }
@@ -93,7 +97,7 @@ namespace VitiligoTracker.Controllers
         // POST: Patients/AddRecord
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddRecord([Bind("PatientId,Date,BodyPart,IrradiationDose,DurationSeconds,Reaction")] TreatmentRecord record)
+    public async Task<IActionResult> AddRecord([Bind("PatientId,Date,BodyPart,IrradiationDose,SuggestDose,Reaction")] TreatmentRecord record)
         {
             // Check authorization
             var patient = await _context.Patients.FindAsync(record.PatientId);
@@ -107,9 +111,6 @@ namespace VitiligoTracker.Controllers
                     return Forbid();
                 }
             }
-
-            // Remove CumulativeDose from ModelState validation as it is calculated server-side
-            ModelState.Remove("CumulativeDose");
 
             if (ModelState.IsValid)
             {
@@ -129,6 +130,24 @@ namespace VitiligoTracker.Controllers
             }
             // If invalid, redirect back to details (simplified error handling for this demo)
             return RedirectToAction(nameof(Details), new { id = record.PatientId });
+                // 自动计算建议剂量
+                var lastDoseRecord = await _context.TreatmentRecords
+                    .Where(r => r.PatientId == record.PatientId && r.BodyPart == record.BodyPart && r.Date < record.Date)
+                    .OrderByDescending(r => r.Date)
+                    .FirstOrDefaultAsync();
+                double lastDose = lastDoseRecord?.IrradiationDose ?? 0;
+                switch (record.Reaction)
+                {
+                    case Models.ReactionType.None:
+                        record.SuggestDose = lastDose + 0.1;
+                        break;
+                    case Models.ReactionType.Erythema:
+                        record.SuggestDose = lastDose;
+                        break;
+                    case Models.ReactionType.Blister:
+                        record.SuggestDose = null; // 停用
+                        break;
+                }
         }
 
         // GET: Patients/EditRecord/5

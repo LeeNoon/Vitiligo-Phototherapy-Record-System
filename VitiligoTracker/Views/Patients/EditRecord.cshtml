@@ -24,7 +24,7 @@
                         <label asp-for="Date" class="form-label fw-bold text-muted small text-uppercase"></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar3"></i></span>
-                            <input asp-for="Date" class="form-control border-start-0 ps-0" />
+                            <input asp-for="Date" type="datetime-local" class="form-control border-start-0 ps-0" />
                         </div>
                         <span asp-validation-for="Date" class="text-danger small"></span>
                     </div>
@@ -48,18 +48,22 @@
                             <span asp-validation-for="IrradiationDose" class="text-danger small"></span>
                         </div>
                         <div class="col-6">
-                            <label asp-for="DurationSeconds" class="form-label fw-bold text-muted small text-uppercase"></label>
+                            <label asp-for="SuggestDose" class="form-label fw-bold text-muted small text-uppercase"></label>
                             <div class="input-group">
-                                <input asp-for="DurationSeconds" class="form-control" placeholder="0" />
-                                <span class="input-group-text bg-white small">秒</span>
+                                <input asp-for="SuggestDose" class="form-control" placeholder="0.00" />
+                                <span class="input-group-text bg-white small">mJ</span>
                             </div>
-                            <span asp-validation-for="DurationSeconds" class="text-danger small"></span>
+                            <span asp-validation-for="SuggestDose" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label asp-for="Reaction" class="form-label fw-bold text-muted small text-uppercase"></label>
-                        <textarea asp-for="Reaction" class="form-control" rows="3" placeholder="记录皮肤反应..."></textarea>
+                        <select asp-for="Reaction" class="form-select">
+                            <option value="None">无反应</option>
+                            <option value="Erythema">红斑反应</option>
+                            <option value="Blister">起水泡</option>
+                        </select>
                         <span asp-validation-for="Reaction" class="text-danger small"></span>
                     </div>
 

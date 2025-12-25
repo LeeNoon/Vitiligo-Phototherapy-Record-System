@@ -11,7 +11,7 @@ using VitiligoTracker.Data;
 namespace VitiligoTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251225125245_InitialCreate")]
+    [Migration("20251225134626_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -212,6 +212,21 @@ namespace VitiligoTracker.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("VitiligoTracker.Models.BodyPartDict", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BodyPartDicts");
+                });
+
             modelBuilder.Entity("VitiligoTracker.Models.Patient", b =>
                 {
                     b.Property<int>("Id")
@@ -251,17 +266,17 @@ namespace VitiligoTracker.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("DurationSeconds")
-                        .HasColumnType("INTEGER");
-
                     b.Property<double>("IrradiationDose")
                         .HasColumnType("REAL");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Reaction")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Reaction")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double?>("SuggestDose")
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 

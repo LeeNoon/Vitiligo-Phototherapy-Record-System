@@ -51,6 +51,19 @@ namespace VitiligoTracker.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BodyPartDicts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BodyPartDicts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Patients",
                 columns: table => new
                 {
@@ -182,9 +195,9 @@ namespace VitiligoTracker.Migrations
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     BodyPart = table.Column<string>(type: "TEXT", nullable: true),
                     IrradiationDose = table.Column<double>(type: "REAL", nullable: false),
+                    SuggestDose = table.Column<double>(type: "REAL", nullable: true),
                     CumulativeDose = table.Column<double>(type: "REAL", nullable: false),
-                    DurationSeconds = table.Column<int>(type: "INTEGER", nullable: true),
-                    Reaction = table.Column<string>(type: "TEXT", nullable: true)
+                    Reaction = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -257,6 +270,9 @@ namespace VitiligoTracker.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BodyPartDicts");
 
             migrationBuilder.DropTable(
                 name: "TreatmentRecords");

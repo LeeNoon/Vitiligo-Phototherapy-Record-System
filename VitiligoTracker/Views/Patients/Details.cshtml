@@ -30,10 +30,10 @@
                     <input type="hidden" name="PatientId" value="@Model.Id" />
 
                     <div class="mb-3">
-                        <label class="form-label small text-uppercase text-muted fw-bold">日期</label>
+                        <label class="form-label small text-uppercase text-muted fw-bold">日期时间</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="bi bi-calendar3"></i></span>
-                            <input type="date" name="Date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <input type="datetime-local" name="Date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                         </div>
                     </div>
 
@@ -41,7 +41,16 @@
                         <label class="form-label small text-uppercase text-muted fw-bold">治疗部位</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="bi bi-body-text"></i></span>
-                            <input type="text" name="BodyPart" class="form-control" placeholder="例如: 面部" />
+                            <input type="text" name="BodyPart" class="form-control" placeholder="例如: 面部" list="bodypart-list" autocomplete="off" />
+                            <datalist id="bodypart-list">
+                                @if (ViewBag.BodyPartDict != null)
+                                {
+                                    foreach (var part in ViewBag.BodyPartDict)
+                                    {
+                                        <option value="@part.Name" />
+                                    }
+                                }
+                            </datalist>
                         </div>
                     </div>
 
@@ -54,17 +63,48 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <label class="form-label small text-uppercase text-muted fw-bold">时长</label>
+                            <label class="form-label small text-uppercase text-muted fw-bold">建议剂量</label>
                             <div class="input-group">
-                                <input type="number" name="DurationSeconds" class="form-control" placeholder="0" />
-                                <span class="input-group-text bg-white small">秒</span>
+                                <input type="number" step="0.01" name="SuggestDose" class="form-control" placeholder="0.00" readonly id="suggest-dose-input" />
+                                <span class="input-group-text bg-white small">mJ</span>
                             </div>
                         </div>
+<script>
+// 自动计算建议剂量（仅前端演示，实际应由后端返回）
+document.addEventListener('DOMContentLoaded', function() {
+    const reactionSelect = document.querySelector('select[name="Reaction"]');
+    const bodyPartInput = document.querySelector('input[name="BodyPart"]');
+    const suggestDoseInput = document.getElementById('suggest-dose-input');
+    // 假设后端可通过API返回前一天同部位剂量，这里用window.lastDose模拟
+    window.lastDose = 1.0; // TODO: 用后端数据替换
+    function updateSuggestDose() {
+        let lastDose = window.lastDose || 0;
+        let reaction = reactionSelect.value;
+        if (reaction === 'None') {
+            suggestDoseInput.value = (lastDose + 0.1).toFixed(2);
+            suggestDoseInput.placeholder = '';
+        } else if (reaction === 'Erythema') {
+            suggestDoseInput.value = lastDose.toFixed(2);
+            suggestDoseInput.placeholder = '';
+        } else if (reaction === 'Blister') {
+            suggestDoseInput.value = '';
+            suggestDoseInput.placeholder = '停用1-3天，消退后再照射';
+        }
+    }
+    reactionSelect.addEventListener('change', updateSuggestDose);
+    bodyPartInput.addEventListener('blur', updateSuggestDose);
+    updateSuggestDose();
+});
+</script>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small text-uppercase text-muted fw-bold">反应/备注</label>
-                        <textarea name="Reaction" class="form-control" rows="3" placeholder="记录皮肤反应..."></textarea>
+                        <label class="form-label small text-uppercase text-muted fw-bold">反应</label>
+                        <select name="Reaction" class="form-select">
+                            <option value="None">无反应</option>
+                            <option value="Erythema">红斑反应</option>
+                            <option value="Blister">起水泡</option>
+                        </select>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
@@ -96,8 +136,8 @@
                                     <th class="ps-4">日期</th>
                                     <th>部位</th>
                                     <th>照射剂量 <small class="text-muted fw-normal">(mJ)</small></th>
+                                    <th>建议剂量 <small class="text-muted fw-normal">(mJ)</small></th>
                                     <th>累积剂量 <small class="text-muted fw-normal">(mJ)</small></th>
-                                    <th>时长 <small class="text-muted fw-normal">(s)</small></th>
                                     <th class="pe-4">反应/备注</th>
                                     <th class="text-end pe-4">操作</th>
                                 </tr>
@@ -106,11 +146,11 @@
                                 @foreach (var record in Model.TreatmentRecords)
                                 {
                                     <tr>
-                                        <td class="ps-4 fw-bold text-dark">@record.Date.ToShortDateString()</td>
+                                        <td class="ps-4 fw-bold text-dark">@record.Date.ToString("yyyy-MM-dd HH:mm")</td>
                                         <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">@record.BodyPart</span></td>
                                         <td class="fw-bold text-primary">@record.IrradiationDose.ToString("F2")</td>
+                                        <td class="fw-bold text-warning">@record.SuggestDose?.ToString("F2")</td>
                                         <td class="text-muted">@record.CumulativeDose.ToString("F2")</td>
-                                        <td>@record.DurationSeconds</td>
                                         <td class="text-muted small">@record.Reaction</td>
                                         <td class="text-end pe-4">
                                             <div class="d-flex justify-content-end gap-2">

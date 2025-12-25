@@ -12,7 +12,8 @@ namespace VitiligoTracker.Data
         {
         }
 
-        public DbSet<Patient> Patients { get; set; }
-        public DbSet<TreatmentRecord> TreatmentRecords { get; set; }
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<TreatmentRecord> TreatmentRecords { get; set; }
+    public DbSet<BodyPartDict> BodyPartDicts { get; set; }
     }
 }
