@@ -3,6 +3,8 @@
 # Build results
 bin/
 obj/
+VitiligoTracker/bin
+VitiligoTracker/obj
 
 # User-specific files
 *.user
