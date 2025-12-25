@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VitiligoTracker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cfe1b3c125a0de5df58d985d3421b05edc3690b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e644e3268a7b31f7bcbca60b2b9d2aec6ec40ba9")]
 [assembly: System.Reflection.AssemblyProductAttribute("VitiligoTracker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VitiligoTracker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
