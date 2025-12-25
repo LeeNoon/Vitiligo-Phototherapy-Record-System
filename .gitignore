@@ -1,0 +1,49 @@
+# .gitignore for Vitiligo Phototherapy Record System (dotnet, macOS, Windows)
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# dotnet tools and cache
+/.dotnet/
+/.nuget/
+~/.dotnet/
+~/.nuget/
+
+# Logs
+*.log
+
+# Database
+*.mdf
+*.ldf
+
+# Publish
+publish/
+
+# Others
+*.swp
+*.tmp
+*.bak
+
+# Ignore shell/batch script output
+*.sh~
+*.bat~
+
+# Ignore migration snapshots (optional)
+VitiligoTracker/Migrations/*Snapshot.cs
+
+# Ignore local settings
+VitiligoTracker/appsettings.Development.json
