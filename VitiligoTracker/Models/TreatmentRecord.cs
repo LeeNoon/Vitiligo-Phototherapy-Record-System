@@ -9,27 +9,38 @@ namespace VitiligoTracker.Models
         public int PatientId { get; set; }
         public Patient? Patient { get; set; }
 
-    [Display(Name = "治疗日期时间")]
-    [DataType(DataType.DateTime)]
-    public DateTime Date { get; set; } = DateTime.Now;
+        [Display(Name = "治疗日期时间")]
+        [DataType(DataType.DateTime)]
+        public DateTime Date { get; set; } = DateTime.Now;
 
         [Display(Name = "治疗部位")]
         public string? BodyPart { get; set; }
 
-    [Display(Name = "照射剂量 (mJ/cm²)")]
-    [Required(ErrorMessage = "请输入照射剂量")]
-    public double IrradiationDose { get; set; }
+        [Display(Name = "照射剂量 (mJ/cm²)")]
+        [Required(ErrorMessage = "请输入照射剂量")]
+        public double IrradiationDose { get; set; }
 
-    [Display(Name = "建议剂量 (mJ/cm²)")]
-    public double? SuggestDose { get; set; }
+        [Display(Name = "建议剂量 (mJ/cm²)")]
+        public double? SuggestDose { get; set; }
 
         [Display(Name = "累积剂量 (mJ/cm²)")]
         public double CumulativeDose { get; set; }
 
-    // 已去除时长字段
+        // 已去除时长字段
 
         [Display(Name = "治疗后反应")]
         public ReactionType Reaction { get; set; } = ReactionType.None;
+
+        public static string GetReactionLabel(ReactionType reaction)
+        {
+            return reaction switch
+            {
+                ReactionType.None => "无反应",
+                ReactionType.Erythema => "红斑反应",
+                ReactionType.Blister => "起水泡",
+                _ => "-"
+            };
+        }
     }
 
     public enum ReactionType

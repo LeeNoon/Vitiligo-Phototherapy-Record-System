@@ -65,36 +65,31 @@
                         <div class="col-6">
                             <label class="form-label small text-uppercase text-muted fw-bold">建议剂量</label>
                             <div class="input-group">
-                                <input type="number" step="0.01" name="SuggestDose" class="form-control" placeholder="0.00" readonly id="suggest-dose-input" />
+                                <input type="number" step="0.01" name="SuggestDose" class="form-control" placeholder="0.00" readonly id="suggest-dose-input" value="@((ViewBag.SuggestDose as double?)?.ToString("F2") ?? "0.00")" />
                                 <span class="input-group-text bg-white small">mJ</span>
                             </div>
                         </div>
 <script>
-// 自动计算建议剂量（仅前端演示，实际应由后端返回）
+
 document.addEventListener('DOMContentLoaded', function() {
-    const reactionSelect = document.querySelector('select[name="Reaction"]');
     const bodyPartInput = document.querySelector('input[name="BodyPart"]');
     const suggestDoseInput = document.getElementById('suggest-dose-input');
-    // 假设后端可通过API返回前一天同部位剂量，这里用window.lastDose模拟
-    window.lastDose = 1.0; // TODO: 用后端数据替换
-    function updateSuggestDose() {
-        let lastDose = window.lastDose || 0;
-        let reaction = reactionSelect.value;
-        if (reaction === 'None') {
-            suggestDoseInput.value = (lastDose + 0.1).toFixed(2);
-            suggestDoseInput.placeholder = '';
-        } else if (reaction === 'Erythema') {
-            suggestDoseInput.value = lastDose.toFixed(2);
-            suggestDoseInput.placeholder = '';
-        } else if (reaction === 'Blister') {
-            suggestDoseInput.value = '';
-            suggestDoseInput.placeholder = '停用1-3天，消退后再照射';
+    const patientId = '@Model.Id';
+    bodyPartInput.addEventListener('blur', function() {
+        const part = bodyPartInput.value.trim();
+        if (!part) {
+            suggestDoseInput.value = '0.00';
+            return;
         }
-    }
-    reactionSelect.addEventListener('change', updateSuggestDose);
-    bodyPartInput.addEventListener('blur', updateSuggestDose);
-    updateSuggestDose();
+        fetch(`/Patients/GetSuggestDose?patientId=${patientId}&bodyPart=${encodeURIComponent(part)}`)
+            .then(res => res.json())
+            .then(data => {
+                suggestDoseInput.value = data.suggestDose || '0.00';
+            })
+            .catch(() => { suggestDoseInput.value = '0.00'; });
+    });
 });
+
 </script>
                     </div>
 
@@ -151,7 +146,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <td class="fw-bold text-primary">@record.IrradiationDose.ToString("F2")</td>
                                         <td class="fw-bold text-warning">@record.SuggestDose?.ToString("F2")</td>
                                         <td class="text-muted">@record.CumulativeDose.ToString("F2")</td>
-                                        <td class="text-muted small">@record.Reaction</td>
+                                        <td class="text-muted small">
+                                            @VitiligoTracker.Models.TreatmentRecord.GetReactionLabel(record.Reaction)
+                                        </td>
                                         <td class="text-end pe-4">
                                             <div class="d-flex justify-content-end gap-2">
                                                 <a asp-action="EditRecord" asp-route-id="@record.Id" class="btn btn-sm btn-light text-primary shadow-sm" title="编辑" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;">

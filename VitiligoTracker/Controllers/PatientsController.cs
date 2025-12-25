@@ -19,6 +19,76 @@ namespace VitiligoTracker.Controllers
             _userManager = userManager;
         }
 
+        // Ajax接口：根据部位返回最新建议剂量
+        [HttpGet]
+        public async Task<IActionResult> GetSuggestDose(int patientId, string bodyPart)
+        {
+            var record = await _context.TreatmentRecords
+                .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart)
+                .OrderByDescending(r => r.Date)
+                .FirstOrDefaultAsync();
+            double suggestDose = 0;
+            if (record != null)
+            {
+                switch (record.Reaction)
+                {
+                    case Models.ReactionType.None:
+                        suggestDose = Math.Round((record.IrradiationDose) + 0.1, 2);
+                        break;
+                    case Models.ReactionType.Erythema:
+                        suggestDose = record.IrradiationDose;
+                        break;
+                    case Models.ReactionType.Blister:
+                        suggestDose = 0; // 停用
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return Json(new { suggestDose = suggestDose.ToString("F2") });
+        }
+
+        // 管理员刷新所有历史治疗记录的建议剂量
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> RefreshAllSuggestDose()
+        {
+            var allPatients = await _context.Patients.Include(p => p.TreatmentRecords).ToListAsync();
+            foreach (var patient in allPatients)
+            {
+                var records = patient.TreatmentRecords
+                    .OrderBy(r => r.BodyPart)
+                    .ThenBy(r => r.Date)
+                    .ThenBy(r => r.Id)
+                    .ToList();
+                string? lastPart = null;
+                double lastDose = 0;
+                foreach (var r in records)
+                {
+                    if (lastPart != r.BodyPart)
+                    {
+                        lastDose = 0;
+                        lastPart = r.BodyPart;
+                    }
+                    switch (r.Reaction)
+                    {
+                        case Models.ReactionType.None:
+                            r.SuggestDose = Math.Round(lastDose + 0.1, 2);
+                            break;
+                        case Models.ReactionType.Erythema:
+                            r.SuggestDose = lastDose;
+                            break;
+                        case Models.ReactionType.Blister:
+                            r.SuggestDose = null;
+                            break;
+                    }
+                    lastDose = r.IrradiationDose;
+                }
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Patients
         public async Task<IActionResult> Index()
         {
@@ -69,6 +139,20 @@ namespace VitiligoTracker.Controllers
             var bodyParts = await _context.BodyPartDicts.OrderBy(b => b.Id).ToListAsync();
             ViewBag.BodyPartDict = bodyParts;
 
+            // 计算建议剂量（默认取最近一条记录的部位和剂量）
+            double? suggestDose = 0;
+            var lastRecord = patient.TreatmentRecords.LastOrDefault();
+            if (lastRecord != null)
+            {
+                // 查找同部位的最近一条记录
+                var lastPartRecord = patient.TreatmentRecords
+                    .Where(r => r.BodyPart == lastRecord.BodyPart)
+                    .OrderByDescending(r => r.Date)
+                    .FirstOrDefault();
+                suggestDose = lastPartRecord?.SuggestDose ?? 0;
+            }
+            ViewBag.SuggestDose = suggestDose;
+
             return View(patient);
         }
 
@@ -112,6 +196,25 @@ namespace VitiligoTracker.Controllers
                 }
             }
 
+            // 自动计算建议剂量（同一部位，取前一天同部位最大日期的照射剂量）
+            var lastDoseRecord = await _context.TreatmentRecords
+                .Where(r => r.PatientId == record.PatientId && r.BodyPart == record.BodyPart && r.Date < record.Date)
+                .OrderByDescending(r => r.Date)
+                .FirstOrDefaultAsync();
+            double lastDose = lastDoseRecord?.IrradiationDose ?? 0;
+            switch (record.Reaction)
+            {
+                case Models.ReactionType.None:
+                    record.SuggestDose = Math.Round(lastDose + 0.1, 2);
+                    break;
+                case Models.ReactionType.Erythema:
+                    record.SuggestDose = lastDose;
+                    break;
+                case Models.ReactionType.Blister:
+                    record.SuggestDose = null; // 停用
+                    break;
+            }
+
             if (ModelState.IsValid)
             {
                 // Calculate Cumulative Dose
@@ -130,24 +233,6 @@ namespace VitiligoTracker.Controllers
             }
             // If invalid, redirect back to details (simplified error handling for this demo)
             return RedirectToAction(nameof(Details), new { id = record.PatientId });
-                // 自动计算建议剂量
-                var lastDoseRecord = await _context.TreatmentRecords
-                    .Where(r => r.PatientId == record.PatientId && r.BodyPart == record.BodyPart && r.Date < record.Date)
-                    .OrderByDescending(r => r.Date)
-                    .FirstOrDefaultAsync();
-                double lastDose = lastDoseRecord?.IrradiationDose ?? 0;
-                switch (record.Reaction)
-                {
-                    case Models.ReactionType.None:
-                        record.SuggestDose = lastDose + 0.1;
-                        break;
-                    case Models.ReactionType.Erythema:
-                        record.SuggestDose = lastDose;
-                        break;
-                    case Models.ReactionType.Blister:
-                        record.SuggestDose = null; // 停用
-                        break;
-                }
         }
 
         // GET: Patients/EditRecord/5
