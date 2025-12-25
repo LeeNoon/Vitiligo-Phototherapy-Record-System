@@ -28,6 +28,15 @@
                     </div>
 
                     <div class="mb-3">
+                        <label asp-for="OwnerPhone" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-phone"></i></span>
+                            <input asp-for="OwnerPhone" class="form-control border-start-0 ps-0" placeholder="请输入关联手机号" />
+                        </div>
+                        <span asp-validation-for="OwnerPhone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
                         <label asp-for="StartDate" class="form-label fw-bold text-muted small text-uppercase"></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj": {}
+    "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj": {}
   },
   "projects": {
-    "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj": {
+    "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
+        "projectUniqueName": "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
         "projectName": "VitiligoTracker",
-        "projectPath": "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
+        "projectPath": "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\VitiligoTracker.csproj",
         "packagesPath": "C:\\Users\\22874\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\obj\\",
+        "outputPath": "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\NuGet.Config",
+          "c:\\Users\\22874\\Desktop\\Vitiligo Phototherapy Record System\\VitiligoTracker\\NuGet.Config",
           "C:\\Users\\22874\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -45,6 +45,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[8.0.0, )"

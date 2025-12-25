@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VitiligoTracker.Data;
@@ -5,19 +7,33 @@ using VitiligoTracker.Models;
 
 namespace VitiligoTracker.Controllers
 {
+    [Authorize]
     public class PatientsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public PatientsController(ApplicationDbContext context)
+        public PatientsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Patients
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Patients.ToListAsync());
+            if (User.IsInRole("Admin"))
+            {
+                return View(await _context.Patients.ToListAsync());
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var userName = user?.UserName;
+                if (string.IsNullOrEmpty(userName)) return View(new List<Patient>());
+
+                return View(await _context.Patients.Where(p => p.OwnerPhone == userName).ToListAsync());
+            }
         }
 
         // GET: Patients/Details/5
@@ -37,6 +53,15 @@ namespace VitiligoTracker.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (patient.OwnerPhone != user?.UserName)
+                {
+                    return Forbid();
+                }
+            }
+
             // Sort records by date descending
             patient.TreatmentRecords = patient.TreatmentRecords.OrderByDescending(r => r.Date).ToList();
 
@@ -44,6 +69,7 @@ namespace VitiligoTracker.Controllers
         }
 
         // GET: Patients/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -52,7 +78,8 @@ namespace VitiligoTracker.Controllers
         // POST: Patients/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,StartDate,Notes")] Patient patient)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([Bind("Id,Name,OwnerPhone,StartDate,Notes")] Patient patient)
         {
             if (ModelState.IsValid)
             {
@@ -68,6 +95,19 @@ namespace VitiligoTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddRecord([Bind("PatientId,Date,BodyPart,IrradiationDose,DurationSeconds,Reaction")] TreatmentRecord record)
         {
+            // Check authorization
+            var patient = await _context.Patients.FindAsync(record.PatientId);
+            if (patient == null) return NotFound();
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (patient.OwnerPhone != user?.UserName)
+                {
+                    return Forbid();
+                }
+            }
+
             // Remove CumulativeDose from ModelState validation as it is calculated server-side
             ModelState.Remove("CumulativeDose");
 
@@ -99,11 +139,21 @@ namespace VitiligoTracker.Controllers
                 return NotFound();
             }
 
-            var record = await _context.TreatmentRecords.FindAsync(id);
+            var record = await _context.TreatmentRecords.Include(r => r.Patient).FirstOrDefaultAsync(r => r.Id == id);
             if (record == null)
             {
                 return NotFound();
             }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (record.Patient?.OwnerPhone != user?.UserName)
+                {
+                    return Forbid();
+                }
+            }
+
             return View(record);
         }
 
@@ -115,6 +165,19 @@ namespace VitiligoTracker.Controllers
             if (id != record.Id)
             {
                 return NotFound();
+            }
+
+            // Check authorization
+            var patient = await _context.Patients.FindAsync(record.PatientId);
+            if (patient == null) return NotFound();
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (patient.OwnerPhone != user?.UserName)
+                {
+                    return Forbid();
+                }
             }
 
             ModelState.Remove("CumulativeDose");
@@ -150,9 +213,18 @@ namespace VitiligoTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteRecord(int id)
         {
-            var record = await _context.TreatmentRecords.FindAsync(id);
+            var record = await _context.TreatmentRecords.Include(r => r.Patient).FirstOrDefaultAsync(r => r.Id == id);
             if (record != null)
             {
+                if (!User.IsInRole("Admin"))
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (record.Patient?.OwnerPhone != user?.UserName)
+                    {
+                        return Forbid();
+                    }
+                }
+
                 int patientId = record.PatientId;
                 _context.TreatmentRecords.Remove(record);
                 await _context.SaveChangesAsync();
@@ -189,6 +261,7 @@ namespace VitiligoTracker.Controllers
         }
 
         // GET: Patients/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
              if (id == null)
@@ -209,6 +282,7 @@ namespace VitiligoTracker.Controllers
         // POST: Patients/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var patient = await _context.Patients.FindAsync(id);

@@ -250,3 +250,5 @@ c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\obj\D
 c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\obj\Debug\net8.0\VitiligoTracker.genruntimeconfig.cache
 c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\obj\Debug\net8.0\ref\VitiligoTracker.dll
 c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\bin\Debug\net8.0\VitiligoTracker.staticwebassets.runtime.json
+c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+c:\Users\22874\Desktop\Vitiligo Phototherapy Record System\VitiligoTracker\obj\Debug\net8.0\VitiligoTracker.sourcelink.json

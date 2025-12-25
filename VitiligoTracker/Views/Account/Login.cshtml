@@ -1,0 +1,97 @@
+@model VitiligoTracker.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "登录";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card border-0 shadow-lg mt-5">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 text-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-3">
+                    <i class="bi bi-person-circle fs-1"></i>
+                </div>
+                <h2 class="fw-bold text-dark">欢迎回来</h2>
+                <p class="text-muted">请登录您的账号以继续</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-phone"></i></span>
+                            <input asp-for="PhoneNumber" class="form-control border-start-0 ps-0" placeholder="请输入手机号" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold text-muted small text-uppercase"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control border-start-0 ps-0" placeholder="请输入密码" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label text-muted small">
+                                @Html.DisplayNameFor(m => m.RememberMe)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>立即登录
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small mb-0">还没有账号？ <a asp-action="Register" class="text-primary text-decoration-none fw-bold">立即注册</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').on('submit', function (e) {
+                if (!$(this).valid()) return;
+
+                e.preventDefault();
+
+                var publicKey = @Json.Serialize(ViewBag.PublicKey);
+                if (!publicKey) {
+                    alert('加密公钥获取失败，请刷新页面');
+                    return;
+                }
+
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey);
+
+                var passwordField = $('#Password');
+                var password = passwordField.val();
+
+                if (password) {
+                    var encrypted = encrypt.encrypt(password);
+                    if (!encrypted) {
+                        alert('密码加密失败');
+                        return;
+                    }
+                    passwordField.val(encrypted);
+                    this.submit();
+                }
+            });
+        });
+    </script>
+}

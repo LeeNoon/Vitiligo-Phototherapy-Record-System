@@ -9,9 +9,12 @@
         <h1 class="mb-0 fw-bold text-dark">患者管理</h1>
         <p class="text-muted mb-0">管理所有患者的光疗记录档案</p>
     </div>
-    <a asp-action="Create" class="btn btn-primary shadow-sm">
-        <i class="bi bi-plus-lg me-2"></i>新增患者
-    </a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>新增患者
+        </a>
+    }
 </div>
 
 <div class="card border-0 shadow-sm">
@@ -62,9 +65,12 @@
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light text-primary fw-bold shadow-sm px-3" style="border-radius: 20px;">
                                     <i class="bi bi-journal-medical me-1"></i>查看记录
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light text-danger shadow-sm" title="删除" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light text-danger shadow-sm" title="删除" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                }
                             </div>
                         </td>
                     </tr>

@@ -10,6 +10,10 @@ namespace VitiligoTracker.Models
         [Display(Name = "姓名")]
         public string Name { get; set; } = string.Empty;
 
+        [Display(Name = "关联手机号")]
+        [Phone(ErrorMessage = "请输入有效的手机号")]
+        public string? OwnerPhone { get; set; }
+
         [Display(Name = "开始治疗日期")]
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; } = DateTime.Now;
