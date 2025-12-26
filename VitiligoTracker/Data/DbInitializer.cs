@@ -10,6 +10,7 @@ namespace VitiligoTracker.Data
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
             // Ensure Roles
             string[] roleNames = { "Admin", "User" };
@@ -44,6 +45,11 @@ namespace VitiligoTracker.Data
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(newAdmin, "Admin");
+                        logger.LogInformation("Admin user created successfully");
+                    }
+                    else
+                    {
+                        logger.LogError("Failed to create admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                     }
                 }
                 else
