@@ -41,7 +41,7 @@
                         <label class="form-label small text-uppercase text-muted fw-bold">治疗部位</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="bi bi-body-text"></i></span>
-                            <input type="text" name="BodyPart" class="form-control" placeholder="例如: 面部" list="bodypart-list" autocomplete="off" />
+                            <input type="text" name="BodyPart" id="bodypart-input" class="form-control" placeholder="例如: 面部" list="bodypart-list" autocomplete="off" />
                             <datalist id="bodypart-list">
                                 @if (ViewBag.BodyPartDict != null)
                                 {
@@ -178,3 +178,23 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('bodypart-input');
+            const datalist = document.getElementById('bodypart-list');
+            const originalOptions = datalist.innerHTML;
+
+            input.addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    datalist.innerHTML = '';
+                } else {
+                    datalist.innerHTML = originalOptions;
+                }
+            });
+        });
+    </script>
+}
