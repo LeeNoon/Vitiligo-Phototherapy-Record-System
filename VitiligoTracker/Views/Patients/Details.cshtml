@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <th class="ps-4">日期</th>
                                     <th>部位</th>
                                     <th>照射剂量 <small class="text-muted fw-normal">(mJ)</small></th>
-                                    <th>建议剂量 <small class="text-muted fw-normal">(mJ)</small></th>
+                                    @* <th>建议剂量 <small class="text-muted fw-normal">(mJ)</small></th> *@
                                     <th>累积剂量 <small class="text-muted fw-normal">(mJ)</small></th>
                                     <th class="pe-4">反应/备注</th>
                                     <th class="text-end pe-4">操作</th>
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <td class="ps-4 fw-bold text-dark">@record.Date.ToString("yyyy-MM-dd HH:mm")</td>
                                         <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">@record.BodyPart</span></td>
                                         <td class="fw-bold text-primary">@record.IrradiationDose.ToString("F2")</td>
-                                        <td class="fw-bold text-warning">@record.SuggestDose?.ToString("F2")</td>
+                                        @* <td class="fw-bold text-warning">@record.SuggestDose?.ToString("F2")</td> *@
                                         <td class="text-muted">@record.CumulativeDose.ToString("F2")</td>
                                         <td class="text-muted small">
                                             @VitiligoTracker.Models.TreatmentRecord.GetReactionLabel(record.Reaction)
