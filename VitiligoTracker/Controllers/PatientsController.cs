@@ -21,98 +21,35 @@ namespace VitiligoTracker.Controllers
 
         // Ajax接口：根据部位返回最新建议剂量
         [HttpGet]
-        public async Task<IActionResult> GetSuggestDose(int patientId, string bodyPart)
+        public async Task<IActionResult> GetSuggestDose(int patientId, string bodyPart, ReactionType reaction = ReactionType.None)
         {
-            var lastRecord = await _context.TreatmentRecords
-                .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart)
-                .OrderByDescending(r => r.Date)
-                .FirstOrDefaultAsync();
+            double lastDose = await GetLastNonZeroDose(patientId, bodyPart, null);
             double suggestDose = 0;
-            if (lastRecord != null)
+            switch (reaction)
             {
-                double lastDose = await GetLastNonZeroDose(patientId, bodyPart, lastRecord.Date);
-                switch (lastRecord.Reaction)
-                {
-                    case Models.ReactionType.None:
-                        suggestDose = Math.Round(lastDose + 0.1, 2);
-                        break;
-                    case Models.ReactionType.MildErythema:
-                        suggestDose = Math.Round(lastDose + 0.05, 2);
-                        break;
-                    case Models.ReactionType.ModerateErythema:
-                        suggestDose = lastDose;
-                        break;
-                    case Models.ReactionType.SevereErythema:
-                        suggestDose = Math.Round(lastDose * 0.8, 2);
-                        break;
-                    case Models.ReactionType.VerySevereErythema:
-                        suggestDose = Math.Round(lastDose * 0.5, 2);
-                        break;
-                    case Models.ReactionType.Blister:
-                        suggestDose = Math.Round(lastDose * 0.5, 2);
-                        break;
-                    default:
-                        suggestDose = 0;
-                        break;
-                }
+                case Models.ReactionType.None:
+                    suggestDose = Math.Round(lastDose + 0.1, 2);
+                    break;
+                case Models.ReactionType.MildErythema:
+                    suggestDose = Math.Round(lastDose + 0.05, 2);
+                    break;
+                case Models.ReactionType.ModerateErythema:
+                    suggestDose = lastDose;
+                    break;
+                case Models.ReactionType.SevereErythema:
+                    suggestDose = Math.Round(lastDose * 0.8, 2);
+                    break;
+                case Models.ReactionType.VerySevereErythema:
+                    suggestDose = Math.Round(lastDose * 0.5, 2);
+                    break;
+                case Models.ReactionType.Blister:
+                    suggestDose = Math.Round(lastDose * 0.5, 2);
+                    break;
+                default:
+                    suggestDose = 0;
+                    break;
             }
             return Json(new { suggestDose = suggestDose.ToString("F2") });
-        }
-
-        // 管理员刷新所有历史治疗记录的建议剂量
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public async Task<IActionResult> RefreshAllSuggestDose()
-        {
-            var allPatients = await _context.Patients.Include(p => p.TreatmentRecords).ToListAsync();
-            foreach (var patient in allPatients)
-            {
-                var records = patient.TreatmentRecords
-                    .OrderBy(r => r.BodyPart)
-                    .ThenBy(r => r.Date)
-                    .ThenBy(r => r.Id)
-                    .ToList();
-                string? lastPart = null;
-                double lastNonZeroDose = 0;
-                foreach (var r in records)
-                {
-                    if (lastPart != r.BodyPart)
-                    {
-                        lastNonZeroDose = 0;
-                        lastPart = r.BodyPart;
-                    }
-                    switch (r.Reaction)
-                    {
-                        case Models.ReactionType.None:
-                            r.SuggestDose = Math.Round(lastNonZeroDose + 0.1, 2);
-                            break;
-                        case Models.ReactionType.MildErythema:
-                            r.SuggestDose = Math.Round(lastNonZeroDose + 0.05, 2);
-                            break;
-                        case Models.ReactionType.ModerateErythema:
-                            r.SuggestDose = lastNonZeroDose;
-                            break;
-                        case Models.ReactionType.SevereErythema:
-                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.8, 2);
-                            break;
-                        case Models.ReactionType.VerySevereErythema:
-                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.5, 2);
-                            break;
-                        case Models.ReactionType.Blister:
-                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.5, 2);
-                            break;
-                        default:
-                            r.SuggestDose = 0;
-                            break;
-                    }
-                    if (r.IrradiationDose > 0)
-                    {
-                        lastNonZeroDose = r.IrradiationDose;
-                    }
-                }
-            }
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         // GET: Patients
@@ -227,31 +164,6 @@ namespace VitiligoTracker.Controllers
             {
                 ModelState.AddModelError("BodyPart", "治疗部位不能为空");
                 return RedirectToAction(nameof(Details), new { id = record.PatientId });
-            }
-            double lastDose = await GetLastNonZeroDose(record.PatientId, record.BodyPart, record.Date);
-            switch (record.Reaction)
-            {
-                case Models.ReactionType.None:
-                    record.SuggestDose = Math.Round(lastDose + 0.1, 2);
-                    break;
-                case Models.ReactionType.MildErythema:
-                    record.SuggestDose = Math.Round(lastDose + 0.05, 2);
-                    break;
-                case Models.ReactionType.ModerateErythema:
-                    record.SuggestDose = lastDose;
-                    break;
-                case Models.ReactionType.SevereErythema:
-                    record.SuggestDose = Math.Round(lastDose * 0.8, 2);
-                    break;
-                case Models.ReactionType.VerySevereErythema:
-                    record.SuggestDose = Math.Round(lastDose * 0.5, 2);
-                    break;
-                case Models.ReactionType.Blister:
-                    record.SuggestDose = Math.Round(lastDose * 0.5, 2);
-                    break;
-                default:
-                    record.SuggestDose = 0;
-                    break;
             }
 
             if (ModelState.IsValid)
@@ -386,10 +298,15 @@ namespace VitiligoTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<double> GetLastNonZeroDose(int patientId, string bodyPart, DateTime beforeDate)
+        private async Task<double> GetLastNonZeroDose(int patientId, string bodyPart, DateTime? beforeDate)
         {
-            var record = await _context.TreatmentRecords
-                .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart && r.Date < beforeDate && r.IrradiationDose > 0)
+            var query = _context.TreatmentRecords
+                .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart && r.IrradiationDose > 0);
+            if (beforeDate.HasValue)
+            {
+                query = query.Where(r => r.Date < beforeDate.Value);
+            }
+            var record = await query
                 .OrderByDescending(r => r.Date)
                 .FirstOrDefaultAsync();
             return record?.IrradiationDose ?? 0;
