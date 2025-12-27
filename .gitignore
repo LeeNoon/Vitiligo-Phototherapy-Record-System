@@ -49,3 +49,6 @@ VitiligoTracker/Migrations/*Snapshot.cs
 
 # Ignore local settings
 VitiligoTracker/appsettings.Development.json
+VitiligoTracker/vitiligo.db
+VitiligoTracker/vitiligo.db-shm
+VitiligoTracker/vitiligo.db-wal
