@@ -3,6 +3,6 @@ namespace VitiligoTracker.Services
     public interface IRsaService
     {
         string GetPublicKey();
-        string Decrypt(string encryptedText);
+        string? Decrypt(string encryptedText);
     }
 }

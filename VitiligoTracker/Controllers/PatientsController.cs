@@ -23,25 +23,36 @@ namespace VitiligoTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSuggestDose(int patientId, string bodyPart)
         {
-            var record = await _context.TreatmentRecords
+            var lastRecord = await _context.TreatmentRecords
                 .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart)
                 .OrderByDescending(r => r.Date)
                 .FirstOrDefaultAsync();
             double suggestDose = 0;
-            if (record != null)
+            if (lastRecord != null)
             {
-                switch (record.Reaction)
+                double lastDose = await GetLastNonZeroDose(patientId, bodyPart, lastRecord.Date);
+                switch (lastRecord.Reaction)
                 {
                     case Models.ReactionType.None:
-                        suggestDose = Math.Round((record.IrradiationDose) + 0.1, 2);
+                        suggestDose = Math.Round(lastDose + 0.1, 2);
                         break;
-                    case Models.ReactionType.Erythema:
-                        suggestDose = record.IrradiationDose;
+                    case Models.ReactionType.MildErythema:
+                        suggestDose = Math.Round(lastDose + 0.05, 2);
+                        break;
+                    case Models.ReactionType.ModerateErythema:
+                        suggestDose = lastDose;
+                        break;
+                    case Models.ReactionType.SevereErythema:
+                        suggestDose = Math.Round(lastDose * 0.8, 2);
+                        break;
+                    case Models.ReactionType.VerySevereErythema:
+                        suggestDose = Math.Round(lastDose * 0.5, 2);
                         break;
                     case Models.ReactionType.Blister:
-                        suggestDose = 0; // 停用
+                        suggestDose = Math.Round(lastDose * 0.5, 2);
                         break;
                     default:
+                        suggestDose = 0;
                         break;
                 }
             }
@@ -62,27 +73,42 @@ namespace VitiligoTracker.Controllers
                     .ThenBy(r => r.Id)
                     .ToList();
                 string? lastPart = null;
-                double lastDose = 0;
+                double lastNonZeroDose = 0;
                 foreach (var r in records)
                 {
                     if (lastPart != r.BodyPart)
                     {
-                        lastDose = 0;
+                        lastNonZeroDose = 0;
                         lastPart = r.BodyPart;
                     }
                     switch (r.Reaction)
                     {
                         case Models.ReactionType.None:
-                            r.SuggestDose = Math.Round(lastDose + 0.1, 2);
+                            r.SuggestDose = Math.Round(lastNonZeroDose + 0.1, 2);
                             break;
-                        case Models.ReactionType.Erythema:
-                            r.SuggestDose = lastDose;
+                        case Models.ReactionType.MildErythema:
+                            r.SuggestDose = Math.Round(lastNonZeroDose + 0.05, 2);
+                            break;
+                        case Models.ReactionType.ModerateErythema:
+                            r.SuggestDose = lastNonZeroDose;
+                            break;
+                        case Models.ReactionType.SevereErythema:
+                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.8, 2);
+                            break;
+                        case Models.ReactionType.VerySevereErythema:
+                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.5, 2);
                             break;
                         case Models.ReactionType.Blister:
-                            r.SuggestDose = null;
+                            r.SuggestDose = Math.Round(lastNonZeroDose * 0.5, 2);
+                            break;
+                        default:
+                            r.SuggestDose = 0;
                             break;
                     }
-                    lastDose = r.IrradiationDose;
+                    if (r.IrradiationDose > 0)
+                    {
+                        lastNonZeroDose = r.IrradiationDose;
+                    }
                 }
             }
             await _context.SaveChangesAsync();
@@ -196,22 +222,35 @@ namespace VitiligoTracker.Controllers
                 }
             }
 
-            // 自动计算建议剂量（同一部位，取前一天同部位最大日期的照射剂量）
-            var lastDoseRecord = await _context.TreatmentRecords
-                .Where(r => r.PatientId == record.PatientId && r.BodyPart == record.BodyPart && r.Date < record.Date)
-                .OrderByDescending(r => r.Date)
-                .FirstOrDefaultAsync();
-            double lastDose = lastDoseRecord?.IrradiationDose ?? 0;
+            // 自动计算建议剂量（同一部位，取前一次同部位非0照射剂量）
+            if (string.IsNullOrEmpty(record.BodyPart))
+            {
+                ModelState.AddModelError("BodyPart", "治疗部位不能为空");
+                return RedirectToAction(nameof(Details), new { id = record.PatientId });
+            }
+            double lastDose = await GetLastNonZeroDose(record.PatientId, record.BodyPart, record.Date);
             switch (record.Reaction)
             {
                 case Models.ReactionType.None:
                     record.SuggestDose = Math.Round(lastDose + 0.1, 2);
                     break;
-                case Models.ReactionType.Erythema:
+                case Models.ReactionType.MildErythema:
+                    record.SuggestDose = Math.Round(lastDose + 0.05, 2);
+                    break;
+                case Models.ReactionType.ModerateErythema:
                     record.SuggestDose = lastDose;
                     break;
+                case Models.ReactionType.SevereErythema:
+                    record.SuggestDose = Math.Round(lastDose * 0.8, 2);
+                    break;
+                case Models.ReactionType.VerySevereErythema:
+                    record.SuggestDose = Math.Round(lastDose * 0.5, 2);
+                    break;
                 case Models.ReactionType.Blister:
-                    record.SuggestDose = null; // 停用
+                    record.SuggestDose = Math.Round(lastDose * 0.5, 2);
+                    break;
+                default:
+                    record.SuggestDose = 0;
                     break;
             }
 
@@ -286,30 +325,36 @@ namespace VitiligoTracker.Controllers
 
             ModelState.Remove("CumulativeDose");
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(record);
-                    await _context.SaveChangesAsync();
+            // 获取原始记录
+            var original = await _context.TreatmentRecords.FindAsync(id);
+            if (original == null) return NotFound();
 
-                    // Recalculate all doses for this patient
-                    await RecalculateDoses(record.PatientId);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TreatmentRecordExists(record.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Details), new { id = record.PatientId });
+            // 部分更新：只更新有效的字段，无效字段清空或保持原值
+            original.Date = ModelState["Date"].Errors.Count == 0 ? record.Date : original.Date;
+            original.BodyPart = ModelState["BodyPart"].Errors.Count == 0 ? record.BodyPart : null; // 清空
+            original.IrradiationDose = ModelState["IrradiationDose"].Errors.Count == 0 ? record.IrradiationDose : 0; // 清空
+            original.Reaction = ModelState["Reaction"].Errors.Count == 0 ? record.Reaction : original.Reaction; // 保持原值
+
+            try
+            {
+                _context.Update(original);
+                await _context.SaveChangesAsync();
+
+                // Recalculate all doses for this patient
+                await RecalculateDoses(record.PatientId);
             }
-            return View(record);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TreatmentRecordExists(record.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Details), new { id = record.PatientId });
         }
 
         // POST: Patients/DeleteRecord/5
@@ -339,6 +384,15 @@ namespace VitiligoTracker.Controllers
                 return RedirectToAction(nameof(Details), new { id = patientId });
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<double> GetLastNonZeroDose(int patientId, string bodyPart, DateTime beforeDate)
+        {
+            var record = await _context.TreatmentRecords
+                .Where(r => r.PatientId == patientId && r.BodyPart == bodyPart && r.Date < beforeDate && r.IrradiationDose > 0)
+                .OrderByDescending(r => r.Date)
+                .FirstOrDefaultAsync();
+            return record?.IrradiationDose ?? 0;
         }
 
         private async Task RecalculateDoses(int patientId)

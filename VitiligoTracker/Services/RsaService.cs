@@ -19,7 +19,7 @@ namespace VitiligoTracker.Services
             return _rsa.ExportSubjectPublicKeyInfoPem();
         }
 
-        public string Decrypt(string encryptedText)
+        public string? Decrypt(string encryptedText)
         {
             try
             {

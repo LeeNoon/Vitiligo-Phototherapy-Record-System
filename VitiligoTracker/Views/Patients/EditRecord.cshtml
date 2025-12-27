@@ -50,7 +50,7 @@
                         <div class="col-6">
                             <label asp-for="SuggestDose" class="form-label fw-bold text-muted small text-uppercase"></label>
                             <div class="input-group">
-                                <input asp-for="SuggestDose" class="form-control" placeholder="0.00" />
+                                <input readonly asp-for="SuggestDose" class="form-control" placeholder="0.00" />
                                 <span class="input-group-text bg-white small">mJ</span>
                             </div>
                             <span asp-validation-for="SuggestDose" class="text-danger small"></span>
@@ -61,8 +61,11 @@
                         <label asp-for="Reaction" class="form-label fw-bold text-muted small text-uppercase"></label>
                         <select asp-for="Reaction" class="form-select">
                             <option value="None">无反应</option>
-                            <option value="Erythema">红斑反应</option>
-                            <option value="Blister">起水泡</option>
+                            <option value="MildErythema">轻度红斑</option>
+                            <option value="ModerateErythema">中度红斑</option>
+                            <option value="SevereErythema">重度红斑</option>
+                            <option value="Blister">水泡</option>
+                            <option value="SevereBlister">严重水泡</option>
                         </select>
                         <span asp-validation-for="Reaction" class="text-danger small"></span>
                     </div>

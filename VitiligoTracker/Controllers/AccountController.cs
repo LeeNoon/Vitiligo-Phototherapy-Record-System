@@ -30,6 +30,12 @@ namespace VitiligoTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(model.Password))
+                {
+                    ModelState.AddModelError("", "密码不能为空");
+                    ViewBag.PublicKey = _rsaService.GetPublicKey();
+                    return View();
+                }
                 // Use PhoneNumber as UserName
                 var user = new IdentityUser { UserName = model.PhoneNumber, PhoneNumber = model.PhoneNumber };
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -64,6 +70,12 @@ namespace VitiligoTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(model.Password))
+                {
+                    ModelState.AddModelError("", "密码不能为空");
+                    ViewBag.PublicKey = _rsaService.GetPublicKey();
+                    return View(model);
+                }
                 // Decrypt password
                 var decryptedPassword = _rsaService.Decrypt(model.Password);
                 if (string.IsNullOrEmpty(decryptedPassword))
@@ -77,6 +89,12 @@ namespace VitiligoTracker.Controllers
                 // First try to find user by PhoneNumber
                 var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == model.PhoneNumber);
                 var userName = user != null ? user.UserName : model.PhoneNumber;
+
+                if (string.IsNullOrEmpty(userName))
+                {
+                    ModelState.AddModelError("", "用户名不能为空");
+                    return View(model);
+                }
 
                 var result = await _signInManager.PasswordSignInAsync(userName, decryptedPassword, model.RememberMe, lockoutOnFailure: false);
 

@@ -36,8 +36,11 @@ namespace VitiligoTracker.Models
             return reaction switch
             {
                 ReactionType.None => "无反应",
-                ReactionType.Erythema => "红斑反应",
-                ReactionType.Blister => "起水泡",
+                ReactionType.MildErythema => "微微发红",
+                ReactionType.ModerateErythema => "粉红色",
+                ReactionType.SevereErythema => "深红色或脱皮",
+                ReactionType.VerySevereErythema => "深红色或疼痛红肿",
+                ReactionType.Blister => "发红并有水疱",
                 _ => "-"
             };
         }
@@ -45,11 +48,11 @@ namespace VitiligoTracker.Models
 
     public enum ReactionType
     {
-        [Display(Name = "无反应")]
-        None = 0,
-        [Display(Name = "红斑反应")]
-        Erythema = 1,
-        [Display(Name = "起水泡")]
-        Blister = 2
+        None,
+        MildErythema,
+        ModerateErythema,
+        SevereErythema,
+        VerySevereErythema,
+        Blister
     }
 }
